@@ -1,41 +1,39 @@
+import * as fs from 'fs'
 import * as http from 'http';
 import { IncomingMessage, ServerResponse } from 'http'
+import * as p from 'path'
 const server = http.createServer();
-
+const publicDir = p.resolve(__dirname, 'public')
 //每次请求都会触发这个函数
 server.on('request', (request: IncomingMessage, response: ServerResponse) => {
-    console.log('request.method')
-    console.log(request.method)
-    console.log('request.url')
-    console.log(request.url)
-    console.log('request.headers')
-    console.log(request.headers)
-    const array = [] as any
-    request.on('data', (chunk) => {
-        array.push(chunk)
-    })
-    request.on('end', () => {
-        const body = Buffer.concat(array).toString()
-        console.log('body')
-        console.log(body)
+    const { method, url, headers } = request
+    switch (url) {
+        case '/index.html':
+            response.setHeader('Content-Type', 'text/html;charset=utf-8')
+            fs.readFile(p.resolve(publicDir, 'index.html'), (error, data) => {
+                if (error) throw error;
+                response.end(data.toString())
+            })
+            break
+        case '/style.css':
+            response.setHeader('Content-Type', 'text/css;charset=utf-8')
+            fs.readFile(p.resolve(publicDir, 'style.css'), (error, data) => {
+                if (error) throw error;
+                response.end(data.toString())
+            })
+            break
+        case '/main.js':
+            response.setHeader('Content-Type', 'text/javascript;charset=utf-8')
 
-        // response.statusCode = 404
-        //设置header
-        // response.setHeader('X-MiMachi', 'Im jiang')
-        // write API 可以调用多次
-        response.write('1\n')
-        response.write('2\n')
-        response.write('3\n')
-
-        //读取图片 imageData是二进制图片格式
-        // response.setHeader('Content-Type','image/png')
-        // response.write(imageData)
-        response.end()
-    })
-})
+            fs.readFile(p.resolve(publicDir, 'main.js'), (error, data) => {
+                if (error) throw error;
+                response.end(data.toString())
+            })
+            break
+    }
+}),
 
 
-//启动http服务器监听连接                                         
-server.listen(8888, () => {
-    console.log(server.address())
-});
+
+    //启动http服务器监听连接                                         
+    server.listen(8888);
