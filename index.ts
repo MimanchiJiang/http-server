@@ -10,6 +10,11 @@ server.on('request', (request: IncomingMessage, response: ServerResponse) => {
     const { method, url: path, headers } = request
     console.log(path)
     const { pathname, search } = url.parse(path as string)
+    if (method != 'GET') {
+        response.statusCode = 405
+        response.end()
+        return
+    }
     // response.setHeader('Content-Type', 'text/html;charset=utf-8')
     // /index.html => index.html
     let filename = pathname?.substring(1);
